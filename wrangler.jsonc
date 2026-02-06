@@ -1,0 +1,43 @@
+{
+	"$schema": "node_modules/wrangler/config-schema.json",
+	"name": "cf-ai-fishing-guru",
+	"main": "src/index.ts",
+	"compatibility_date": "2026-02-05",
+	"compatibility_flags": [
+		"nodejs_compat",
+		"global_fetch_strictly_public"
+	],
+	"assets": {
+		"directory": "./public",
+		"binding": "ASSETS"
+	},
+	"observability": {
+		"enabled": true
+	},
+	"ai": {
+		"binding": "AI"
+	},
+	"workflows": [
+		{
+			"name": "fishing-workflow",
+			"binding": "FISHING_WORKFLOW",
+			"class_name": "FishingWorkflow"
+		}
+	],
+	"durable_objects": {
+		"bindings": [
+			{
+				"name": "FISHING_MEMORY",
+				"class_name": "FishingMemory"
+			}
+		]
+	},
+	"migrations": [
+		{
+			"tag": "v1",
+			"new_sqlite_classes": [
+				"FishingMemory"
+			]
+		}
+	]
+}
