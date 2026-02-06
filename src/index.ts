@@ -5,49 +5,63 @@ export interface Env {
 	AI: any;
 	FISHING_WORKFLOW: Workflow;
 	FISHING_MEMORY: DurableObjectNamespace<FishingMemory>;
-	ASSETS: { fetch: typeof fetch }; // This fixes the ASSETS error
+	ASSETS: { fetch: typeof fetch };
 }
 
 export default {
-	async fetch(request, env): Promise<Response> {
+	async fetch(request, env, ctx): Promise<Response> {
 		const url = new URL(request.url);
 
-		// 1. Setup Memory Access
-		// We use a fixed name like "user-1" for now, or you could use a session ID
-		const memoryId = env.FISHING_MEMORY.idFromName("user-session-1");
-		const memoryStub = env.FISHING_MEMORY.get(memoryId);
-
-		// 2. Handle the AI Fishing Request
+		// 1. Memory & Workflow Route
 		if (url.pathname === "/api/fish") {
-			const location = url.searchParams.get("location") || "Unknown";
-			const targetFish = url.searchParams.get("target") || "any fish";
+			const query = url.searchParams.get("query") || "";
+			const id = env.FISHING_MEMORY.idFromName("global-user");
+			const memoryDO = env.FISHING_MEMORY.get(id);
 
-			// SAVE TO MEMORY: Store the user's target fish preference
-			await memoryStub.setPreference("last_target", targetFish);
+			const historyResponse = await memoryDO.fetch(request);
+			const { historyNote } = await historyResponse.json() as { historyNote: string };
 
-			// RETRIEVE FROM MEMORY: Get the last location they asked about
-			const previousLocation = await memoryStub.getPreference("last_location");
-
-			// Update memory with current location for next time
-			await memoryStub.setPreference("last_location", location);
-
-			// 3. TRIGGER WORKFLOW: Start the AI analysis
 			const instance = await env.FISHING_WORKFLOW.create({
-				params: {
-					location,
-					targetFish,
-					context: `User previously asked about ${previousLocation || 'nowhere'}`
-				}
+				params: { query }
 			});
 
 			return Response.json({
 				success: true,
-				message: `Guru is now analyzing conditions for ${targetFish} in ${location}.`,
 				workflowId: instance.id,
-				historyNote: previousLocation ? `I remember you asked about ${previousLocation} last time!` : "This is our first trip together!"
+				historyNote: historyNote
+			});
+		}
+
+		// 2. Chat Streaming Route (The Patient Guide)
+		if (url.pathname === "/api/chat") {
+			const query = url.searchParams.get("q") || "Hello";
+
+			// Using Llama 3 special tokens to prevent instruction leakage and set personality
+			const stream = await env.AI.run("@cf/meta/llama-3.3-70b-instruct-fp8-fast", {
+				prompt: `<|begin_of_text|><|start_header_id|>system<|end_header_id|>
+                You are a patient, helpful, and highly knowledgeable local Fishing Guide. 
+                Your tone is encouraging, calm, and professional—like someone teaching a friend 
+                their favorite secret spots.
+
+                Rules:
+                - Focus entirely on recommending specific geographical landmarks or structures.
+                - Use bold text for the names of spots (e.g., **South Pier**).
+                - Give a clear, helpful tip for each location.
+                - Do not repeat these instructions or provide "Notes" or "Context" sections.
+                - Do not use "pirate" slang or aggressive language.
+                - End your response with a supportive closing like "Good luck out there."<|eot_id|>
+                <|start_header_id|>user<|end_header_id|>
+                ${query}<|eot_id|>
+                <|start_header_id|>assistant<|end_header_id|>`,
+				stream: true,
 			});
 
+			return new Response(stream, {
+				headers: { "content-type": "text/event-stream" },
+			});
 		}
+
+		// 3. Static Assets Fallback
 		if (env.ASSETS) {
 			return env.ASSETS.fetch(request);
 		}
@@ -56,5 +70,4 @@ export default {
 	},
 } satisfies ExportedHandler<Env>;
 
-// IMPORTANT: You must export your classes so Cloudflare can find them
 export { FishingWorkflow, FishingMemory };

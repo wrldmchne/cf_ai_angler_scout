@@ -1,46 +1,45 @@
 import { DurableObject } from "cloudflare:workers";
 
-/**
- * Durable Object for persistent state.
- * Fulfills the "Memory or State" requirement using SQLite.
- */
 export class FishingMemory extends DurableObject {
-    sql: SqlStorage;
+    private sql: any;
 
-    constructor(ctx: DurableObjectState, env: Env) {
+    constructor(ctx: DurableObjectState, env: any) {
         super(ctx, env);
         this.sql = ctx.storage.sql;
 
-        // Create a simple table to store preferences
-        // This runs once when the memory object is first created
+        // Create a table to store the last query for a user/session
         this.sql.exec(`
-      CREATE TABLE IF NOT EXISTS user_prefs (
-        key TEXT PRIMARY KEY,
-        value TEXT
+      CREATE TABLE IF NOT EXISTS session_memory (
+        id TEXT PRIMARY KEY,
+        last_query TEXT,
+        timestamp DATETIME DEFAULT CURRENT_TIMESTAMP
       );
     `);
     }
 
-    // Method to save data (e.g., "favorite_fish" -> "Bass")
-    async setPreference(key: string, value: string) {
-        this.sql.exec(
-            "INSERT OR REPLACE INTO user_prefs (key, value) VALUES (?, ?)",
-            key,
-            value
-        );
-    }
+    async fetch(request: Request): Promise<Response> {
+        const url = new URL(request.url);
+        const query = url.searchParams.get("query") || "";
+        const sessionId = "global-user"; // Simplified for the assignment
 
-    // Method to retrieve data
-    async getPreference(key: string): Promise<string | null> {
-        const cursor = this.sql.exec(
-            "SELECT value FROM user_prefs WHERE key = ?",
-            key
-        );
-
-        // Get the first row from the cursor
+        // 1. Check if we remember this user
+        const cursor = this.sql.exec("SELECT last_query FROM session_memory WHERE id = ?", sessionId);
         const row = cursor.next();
+        const previousQuery = row.value ? row.value.last_query : null;
 
-        // If row is null or undefined, return null; otherwise return the value
-        return row.value ? (row.value.value as string) : null;
+        // 2. Update the memory with the NEW query
+        this.sql.exec(
+            "INSERT OR REPLACE INTO session_memory (id, last_query, timestamp) VALUES (?, ?, CURRENT_TIMESTAMP)",
+            sessionId,
+            query
+        );
+
+        // 3. Craft the "History Note"
+        let historyNote = "This is our first trip together!";
+        if (previousQuery) {
+            historyNote = `I remember you were asking about "${previousQuery}" earlier!`;
+        }
+
+        return Response.json({ historyNote });
     }
 }
