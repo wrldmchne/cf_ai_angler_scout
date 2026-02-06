@@ -4,173 +4,224 @@
 <head>
 	<meta charset="UTF-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
-	<title>AI Fishing Guru 🎣</title>
+	<title>AI Fishing Guru | Spot Finder 🎣</title>
 	<style>
 		body {
 			font-family: -apple-system, system-ui, sans-serif;
 			background: #121212;
 			color: #e0e0e0;
-			max-width: 600px;
-			margin: 40px auto;
-			padding: 20px;
+			max-width: 700px;
+			margin: 0 auto;
+			display: flex;
+			flex-direction: column;
+			height: 100vh;
 		}
 
 		.container {
+			flex: 1;
+			display: flex;
+			flex-direction: column;
 			background: #1e1e1e;
-			padding: 20px;
-			border-radius: 12px;
-			border: 1px solid #333;
-			box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+			border-left: 1px solid #333;
+			border-right: 1px solid #333;
+			overflow: hidden;
+		}
+
+		header {
+			padding: 15px 20px;
+			border-bottom: 1px solid #333;
+			background: #181818;
 		}
 
 		h1 {
 			color: #4dabf7;
-			margin-top: 0;
+			margin: 0;
+			font-size: 1.2rem;
 		}
 
-		.input-group {
-			margin-bottom: 15px;
+		#chat-box {
+			flex: 1;
+			overflow-y: auto;
+			padding: 20px;
+			display: flex;
+			flex-direction: column;
+			gap: 15px;
 		}
 
-		label {
-			display: block;
-			margin-bottom: 5px;
-			font-size: 0.9em;
-			color: #aaa;
+		.msg {
+			padding: 12px 16px;
+			border-radius: 12px;
+			max-width: 85%;
+			line-height: 1.5;
+			position: relative;
+		}
+
+		.user {
+			background: #1c7ed6;
+			color: white;
+			align-self: flex-end;
+			border-bottom-right-radius: 2px;
+		}
+
+		.guru {
+			background: #2c2c2c;
+			color: #e0e0e0;
+			align-self: flex-start;
+			border-bottom-left-radius: 2px;
+			border: 1px solid #444;
+		}
+
+		.history-tag {
+			font-size: 0.75rem;
+			color: #ff922b;
+			margin-bottom: 4px;
+			font-weight: bold;
+			text-transform: uppercase;
+		}
+
+		#chat-form {
+			padding: 20px;
+			background: #181818;
+			border-top: 1px solid #333;
+			display: flex;
+			gap: 10px;
 		}
 
 		input {
-			width: 100%;
-			padding: 10px;
+			flex: 1;
+			padding: 12px;
 			background: #2a2a2a;
 			border: 1px solid #444;
-			border-radius: 6px;
+			border-radius: 8px;
 			color: white;
-			box-sizing: border-box;
+			outline: none;
+		}
+
+		input:focus {
+			border-color: #1c7ed6;
 		}
 
 		button {
 			background: #1c7ed6;
 			color: white;
 			border: none;
-			padding: 12px 20px;
-			border-radius: 6px;
+			padding: 0 20px;
+			border-radius: 8px;
 			cursor: pointer;
-			width: 100%;
 			font-weight: bold;
-			margin-top: 10px;
+			transition: background 0.2s;
 		}
 
 		button:hover {
 			background: #1971c2;
 		}
 
-		#chat-box {
-			margin-top: 25px;
-			border-top: 1px solid #333;
-			padding-top: 20px;
-			line-height: 1.6;
-		}
-
-		.msg {
-			margin-bottom: 15px;
-			padding: 10px;
-			border-radius: 8px;
-		}
-
-		.user {
-			background: #2c2c2c;
-			border-left: 4px solid #1c7ed6;
-		}
-
-		.guru {
-			background: #252525;
-			border-left: 4px solid #40c057;
-		}
-
-		.history {
-			font-size: 0.8em;
-			color: #888;
-			font-style: italic;
-			margin-bottom: 5px;
+		button:disabled {
+			background: #444;
+			cursor: not-allowed;
 		}
 	</style>
 </head>
 
 <body>
 	<div class="container">
-		<h1>Fishing Guru AI</h1>
-		<form id="chat-form">
-			<div class="input-group">
-				<label>Where are you fishing?</label>
-				<input type="text" id="location" placeholder="e.g. Miami, FL" required>
-			</div>
-			<div class="input-group">
-				<label>What are you catching?</label>
-				<input type="text" id="target" placeholder="e.g. Snapper" required>
-			</div>
-			<button type="submit">Ask the Guru</button>
-		</form>
+		<header>
+			<h1>Fishing Guru Spot Finder</h1>
+		</header>
 
 		<div id="chat-box">
+			<div class="msg guru">Tight lines! Tell me what you're targeting and where, and I'll find you the best
+				spots.</div>
 		</div>
+
+		<form id="chat-form">
+			<input type="text" id="user-input"
+				placeholder="e.g. Where are the best reef spots in Key Largo for Snapper?" required autocomplete="off">
+			<button type="submit" id="send-btn">Send</button>
+		</form>
 	</div>
 
 	<script>
 		const chatForm = document.getElementById('chat-form');
 		const chatBox = document.getElementById('chat-box');
+		const userInput = document.getElementById('user-input');
+		const sendBtn = document.getElementById('send-btn');
 
 		chatForm.onsubmit = async (e) => {
 			e.preventDefault();
-			const loc = document.getElementById('location').value;
-			const target = document.getElementById('target').value;
+			const query = userInput.value.trim();
+			if (!query) return;
 
-			// Clear previous results
-			chatBox.innerHTML = '';
+			// Disable UI during fetch
+			userInput.value = '';
+			userInput.disabled = true;
+			sendBtn.disabled = true;
 
-			// 1. Create User Message
+			// 1. Add User Message to UI
 			const userDiv = document.createElement('div');
 			userDiv.className = 'msg user';
-			userDiv.innerHTML = `Searching for ${target} in ${loc}...`;
+			userDiv.innerText = query;
 			chatBox.appendChild(userDiv);
+			chatBox.scrollTop = chatBox.scrollHeight;
 
 			// 2. Create Guru Message Container
 			const guruDiv = document.createElement('div');
 			guruDiv.className = 'msg guru';
-			const historySpan = document.createElement('div');
-			historySpan.className = 'history';
+			const historyTag = document.createElement('div');
+			historyTag.className = 'history-tag';
 			const contentSpan = document.createElement('span');
-			guruDiv.appendChild(historySpan);
+			guruDiv.appendChild(historyTag);
 			guruDiv.appendChild(contentSpan);
 			chatBox.appendChild(guruDiv);
 
-			// 3. Kick off the Workflow/Memory API (Background)
-			// This stores the history in SQLite
-			fetch(`/api/fish?location=${encodeURIComponent(loc)}&target=${encodeURIComponent(target)}`)
-				.then(res => res.json())
-				.then(data => {
-					historySpan.innerText = data.historyNote || '';
-				});
+			try {
+				// 3. Background: Update Memory & Trigger Workflow
+				// We parse the query to extract keywords (simplified for this demo)
+				fetch(`/api/fish?location=Contextual&target=General&query=${encodeURIComponent(query)}`)
+					.then(res => res.json())
+					.then(data => {
+						if (data.historyNote) {
+							historyTag.innerText = "📍 Memory: " + data.historyNote;
+						}
+					});
 
-			// 4. Start the AI Stream (Foreground)
-			const response = await fetch(`/api/chat?q=Give me an expert tip for catching ${target} in ${loc}`);
-			const reader = response.body.getReader();
-			const decoder = new TextDecoder();
+				// 4. Foreground: Stream the Spot Recommendations
+				const response = await fetch(`/api/chat?q=${encodeURIComponent("Recommend specific fishing spots for: " + query)}`);
+				const reader = response.body.getReader();
+				const decoder = new TextDecoder();
 
-			while (true) {
-				const { value, done } = await reader.read();
-				if (done) break;
+				while (true) {
+					const { value, done } = await reader.read();
+					if (done) break;
 
-				const chunk = decoder.decode(value, { stream: true });
-				const lines = chunk.split('\n');
-				for (const line of lines) {
-					if (line.startsWith('data: ')) {
-						try {
-							const data = JSON.parse(line.slice(6));
-							contentSpan.innerText += data.response;
-						} catch (e) { }
+					const chunk = decoder.decode(value, { stream: true });
+					const lines = chunk.split('\n');
+
+					for (const line of lines) {
+						// Only process lines that start with 'data: ' and aren't 'data: [DONE]'
+						if (line.startsWith('data: ') && !line.includes('[DONE]')) {
+							try {
+								const jsonString = line.slice(6);
+								const data = JSON.parse(jsonString);
+
+								// Only append if data.response actually has a value
+								if (data && data.response) {
+									contentSpan.innerText += data.response;
+									chatBox.scrollTop = chatBox.scrollHeight;
+								}
+							} catch (e) {
+								// Ignore parsing errors from partial chunks
+								console.log("Skipping partial chunk");
+							}
+						}
 					}
 				}
+			} catch (err) {
+				contentSpan.innerText = "Sorry, the Guru is back at the docks (Error connecting).";
+			} finally {
+				userInput.disabled = false;
+				sendBtn.disabled = false;
+				userInput.focus();
 			}
 		};
 	</script>
