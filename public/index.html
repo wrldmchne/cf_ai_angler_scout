@@ -4,235 +4,215 @@
 <head>
 	<meta charset="UTF-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
-	<title>Fishing Guru | Local Spot Finder 🎣</title>
+	<title>ANGLER SCOUT</title>
 	<style>
+		:root {
+			--bg-main: #0e0e0e;
+			--bg-panel: #171717;
+			--accent: #61ff9f;
+			--text-primary: #ffffff;
+			--text-body: #c4c7c5;
+			--border: #2b2b2b;
+		}
+
 		body {
-			font-family: -apple-system, system-ui, sans-serif;
-			background: #121212;
-			color: #e0e0e0;
-			max-width: 700px;
-			margin: 0 auto;
+			background: var(--bg-main);
+			color: var(--text-body);
+			font-family: 'Inter', sans-serif;
+			margin: 0;
 			display: flex;
 			flex-direction: column;
 			height: 100vh;
-		}
-
-		.container {
-			flex: 1;
-			display: flex;
-			flex-direction: column;
-			background: #1e1e1e;
-			border-left: 1px solid #333;
-			border-right: 1px solid #333;
 			overflow: hidden;
 		}
 
 		header {
+			padding: 80px 20px;
+			flex-shrink: 0;
+			display: flex;
+			flex-direction: column;
+			align-items: center;
+			transition: 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+		}
+
+		header.active {
 			padding: 15px 20px;
-			border-bottom: 1px solid #333;
-			background: #181818;
-			text-align: center;
+			order: 2;
+			border-top: 1px solid var(--border);
+			background: #0a0a0a;
 		}
 
-		h1 {
-			color: #4dabf7;
-			margin: 0;
-			font-size: 1.4rem;
+		.search-container {
+			width: 100%;
+			max-width: 800px;
+			position: relative;
 		}
 
-		#chat-box {
+		input {
+			width: 100%;
+			padding: 18px 120px 18px 25px;
+			background: var(--bg-panel);
+			border: 1px solid var(--border);
+			border-radius: 32px;
+			color: #fff;
+			outline: none;
+			box-sizing: border-box;
+			font-size: 1rem;
+		}
+
+		input:focus {
+			border-color: var(--accent);
+			box-shadow: 0 0 15px rgba(97, 255, 159, 0.15);
+		}
+
+		button {
+			position: absolute;
+			right: 8px;
+			top: 50%;
+			transform: translateY(-50%);
+			background: var(--accent);
+			border: none;
+			padding: 10px 22px;
+			border-radius: 24px;
+			font-weight: 600;
+			cursor: pointer;
+		}
+
+		main {
 			flex: 1;
 			overflow-y: auto;
 			padding: 20px;
 			display: flex;
 			flex-direction: column;
-			gap: 15px;
-			scroll-behavior: smooth;
+			align-items: center;
+			order: 1;
 		}
 
-		.msg {
-			padding: 12px 16px;
-			border-radius: 12px;
-			max-width: 85%;
-			line-height: 1.5;
-			font-size: 1rem;
+		#chips {
+			display: none;
+			gap: 8px;
+			margin-bottom: 12px;
+			flex-wrap: wrap;
+			justify-content: center;
+			width: 100%;
+			max-width: 800px;
 		}
 
-		.user {
-			background: #1c7ed6;
-			color: white;
-			align-self: flex-end;
-			border-bottom-right-radius: 2px;
-		}
-
-		.guru {
-			background: #2c2c2c;
-			color: #e0e0e0;
-			align-self: flex-start;
-			border-bottom-left-radius: 2px;
-			border: 1px solid #444;
-		}
-
-		.memory-note {
+		.chip {
+			background: var(--bg-panel);
+			border: 1px solid var(--border);
+			padding: 7px 15px;
+			border-radius: 20px;
 			font-size: 0.8rem;
-			color: #fab005;
-			margin-bottom: 8px;
-			font-weight: 600;
-			display: block;
-			border-bottom: 1px solid #444;
-			padding-bottom: 4px;
-		}
-
-		#chat-form {
-			padding: 20px;
-			background: #181818;
-			border-top: 1px solid #333;
-			display: flex;
-			gap: 10px;
-		}
-
-		input {
-			flex: 1;
-			padding: 12px;
-			background: #2a2a2a;
-			border: 1px solid #444;
-			border-radius: 8px;
-			color: white;
-			outline: none;
-			font-size: 1rem;
-		}
-
-		input:focus {
-			border-color: #1c7ed6;
-		}
-
-		button {
-			background: #1c7ed6;
-			color: white;
-			border: none;
-			padding: 0 24px;
-			border-radius: 8px;
 			cursor: pointer;
-			font-weight: bold;
+			transition: 0.2s;
 		}
 
-		button:hover {
-			background: #1971c2;
+		.chip:hover {
+			border-color: var(--accent);
+			color: var(--accent);
 		}
 
-		button:disabled {
-			background: #444;
-			opacity: 0.7;
-			cursor: not-allowed;
+		.report-card {
+			width: 100%;
+			max-width: 800px;
+			background: var(--bg-panel);
+			border-radius: 28px;
+			padding: 45px;
+			box-sizing: border-box;
+			margin-bottom: 25px;
+			line-height: 1.8;
+			border: 1px solid var(--border);
+			animation: slideUp 0.5s ease;
+		}
+
+		h2 {
+			color: var(--text-primary);
+			margin: 0 0 25px 0;
+			font-weight: 500;
 		}
 
 		b {
-			color: #40c057;
-			font-weight: 700;
+			color: var(--accent);
+			font-weight: 500;
 		}
 
-		/* Styling for the bolded spots */
+		@keyframes slideUp {
+			from {
+				opacity: 0;
+				transform: translateY(20px);
+			}
+
+			to {
+				opacity: 1;
+				transform: translateY(0);
+			}
+		}
 	</style>
 </head>
 
 <body>
-	<div class="container">
-		<header>
-			<h1>Fishing Guru</h1>
-		</header>
-
-		<div id="chat-box">
-			<div class="msg guru">Hello! I'm your local guide. Whether you're a beginner or a regular, I'm happy to help
-				you find some good spots. What are you looking to catch today?</div>
+	<main id="out"></main>
+	<header id="app-header">
+		<div id="chips">
+			<div class="chip" onclick="q('Best lures for this spot?')">Recommended Lures</div>
+			<div class="chip" onclick="q('What time of day is best?')">Optimal Timing</div>
+			<div class="chip" onclick="q('Any nearby access points?')">Access Points</div>
 		</div>
-
-		<form id="chat-form">
-			<input type="text" id="user-input" placeholder="e.g. Best spots for Bass in Austin?" required
-				autocomplete="off">
-			<button type="submit" id="send-btn">Send</button>
-		</form>
-	</div>
+		<div class="search-container">
+			<form id="scout-form">
+				<input type="text" id="user-query" placeholder="Enter location for tactical scout..." required
+					autocomplete="off">
+				<button type="submit" id="scout-btn">Scout</button>
+			</form>
+		</div>
+	</header>
 
 	<script>
-		const chatForm = document.getElementById('chat-form');
-		const chatBox = document.getElementById('chat-box');
-		const userInput = document.getElementById('user-input');
-		const sendBtn = document.getElementById('send-btn');
+		const out = document.getElementById('out');
+		const header = document.getElementById('app-header');
+		const chips = document.getElementById('chips');
+		let history = [];
 
-		chatForm.onsubmit = async (e) => {
+		function q(text) { document.getElementById('user-query').value = text; document.getElementById('scout-form').requestSubmit(); }
+
+		document.getElementById('scout-form').onsubmit = async (e) => {
 			e.preventDefault();
-			const query = userInput.value.trim();
+			const input = document.getElementById('user-query');
+			const query = input.value.trim();
 			if (!query) return;
 
-			// UI State
-			userInput.value = '';
-			userInput.disabled = true;
-			sendBtn.disabled = true;
+			header.classList.add('active');
+			chips.style.display = 'flex';
+			history.push({ role: "user", content: query });
 
-			// 1. Render User Message
-			const userDiv = document.createElement('div');
-			userDiv.className = 'msg user';
-			userDiv.innerText = query;
-			chatBox.appendChild(userDiv);
-			chatBox.scrollTop = chatBox.scrollHeight;
+			// Update Geographic Anchor if the query isn't a question
+			if (!query.includes('?')) fetch(`/api/anchor?loc=${encodeURIComponent(query)}`);
 
-			// 2. Prepare Guru Response Container
-			const guruDiv = document.createElement('div');
-			guruDiv.className = 'msg guru';
-			const memorySpan = document.createElement('span');
-			memorySpan.className = 'memory-note';
-			const contentSpan = document.createElement('span');
+			const res = await fetch('/api/chat', { method: 'POST', body: JSON.stringify({ messages: history }) });
+			const reader = res.body.getReader();
+			const decoder = new TextDecoder();
+			const card = document.createElement('div');
+			card.className = 'report-card';
+			out.appendChild(card);
+			card.scrollIntoView({ behavior: 'smooth' });
 
-			guruDiv.appendChild(memorySpan);
-			guruDiv.appendChild(contentSpan);
-			chatBox.appendChild(guruDiv);
-
-			try {
-				// 3. Trigger Memory/Workflow (Background)
-				fetch(`/api/fish?query=${encodeURIComponent(query)}`)
-					.then(res => res.json())
-					.then(data => {
-						if (data.historyNote) memorySpan.innerText = "📍 " + data.historyNote;
-					});
-
-				// 4. Handle Streaming Response (Foreground)
-				const response = await fetch(`/api/chat?q=${encodeURIComponent(query)}`);
-				const reader = response.body.getReader();
-				const decoder = new TextDecoder();
-				let accumulatedText = "";
-
-				while (true) {
-					const { value, done } = await reader.read();
-					if (done) break;
-
-					const chunk = decoder.decode(value, { stream: true });
-					const lines = chunk.split('\n');
-
-					for (const line of lines) {
-						if (line.startsWith('data: ') && !line.includes('[DONE]')) {
-							try {
-								const data = JSON.parse(line.slice(6));
-								if (data && data.response) {
-									accumulatedText += data.response;
-
-									// REPLACEMENT LOGIC: 
-									// Convert **Spot Name** to <b>Spot Name</b> 
-									const formatted = accumulatedText.replace(/\*\*(.*?)\*\*/g, '<b>$1</b>');
-									contentSpan.innerHTML = formatted;
-
-									chatBox.scrollTop = chatBox.scrollHeight;
-								}
-							} catch (e) { /* Skip partial JSON */ }
-						}
+			let fullText = "";
+			while (true) {
+				const { done, value } = await reader.read();
+				if (done) break;
+				const chunk = decoder.decode(value);
+				const lines = chunk.split('\n');
+				for (const line of lines) {
+					if (line.startsWith('data: ') && !line.includes('[DONE]')) {
+						const data = JSON.parse(line.slice(6));
+						fullText += data.response;
+						card.innerHTML = fullText.replace(/^## (.*$)/gm, '<h2>$1</h2>').replace(/\*\*(.*?)\*\*/g, '<b>$1</b>').replace(/\n/g, '<br>');
 					}
 				}
-			} catch (err) {
-				contentSpan.innerText = "I'm having a bit of trouble connecting to the dock right now. Please try again in a moment.";
-			} finally {
-				userInput.disabled = false;
-				sendBtn.disabled = false;
-				userInput.focus();
 			}
+			history.push({ role: "assistant", content: fullText });
+			input.value = '';
 		};
 	</script>
 </body>
