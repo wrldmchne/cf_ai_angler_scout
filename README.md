@@ -1,4 +1,4 @@
-# 📍 Angler Scout AI
+# Angler Scout AI
 
 Angler Scout is a specialized AI agent designed for curious anglers looking to explore new fisheries in their locale. It uses geographic persistence and progressive disclosure to provide strategic overviews and aggregated tactical intel for any body of water.
 
