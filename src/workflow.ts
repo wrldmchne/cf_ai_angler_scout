@@ -1,21 +1,34 @@
 import { WorkflowEntrypoint, WorkflowStep, WorkflowEvent } from "cloudflare:workers";
 
-// This is where the magic happens
-export class FishingWorkflow extends WorkflowEntrypoint<Env, { location: string }> {
-    async run(event: WorkflowEvent<{ location: string }>, step: WorkflowStep) {
+// Define the shape of the data coming from index.ts
+type ScoutParams = {
+    query: string;
+    anchor: string;
+};
 
-        // Step 1: Define a "thinking" step
-        const analysis = await step.do("analyze-fishing-conditions", async () => {
-            // Calling Llama 3.3 via the AI binding
-            const response = await this.env.AI.run("@cf/meta/llama-3.3-70b-instruct-fp8-fast", {
-                messages: [
-                    { role: "system", content: "You are a professional fishing guide who uses weather data to find the best spots." },
-                    { role: "user", content: `Give me a fishing report for ${event.payload.location}. Include best bait and time of day.` }
-                ]
-            });
-            return response;
+export class FishingWorkflow extends WorkflowEntrypoint<any, ScoutParams> {
+    async run(event: WorkflowEvent<ScoutParams>, step: WorkflowStep) {
+
+        // Step 1: Tactical Logging
+        // This simulates saving the session data to an external database or analytics engine
+        await step.do("log-intelligence-request", async () => {
+            console.log(`[WORKFLOW] Processing scout request for Anchor: ${event.payload.anchor}`);
+            console.log(`[WORKFLOW] User Query: ${event.payload.query}`);
+
+            return { status: "logged", timestamp: new Date().toISOString() };
         });
 
-        return analysis;
+        // Step 2: Intel Enrichment
+        // In a real-world app, this is where you'd fetch external Weather or Tide APIs 
+        // to "enrich" the Durable Object state for the next time the user asks a question.
+        const enrichment = await step.do("enrich-session-data", async () => {
+            // Logic for background data fetching would go here
+            return { enriched: true, version: "v1.0" };
+        });
+
+        return {
+            missionId: crypto.randomUUID(),
+            enrichment
+        };
     }
 }

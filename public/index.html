@@ -4,20 +4,24 @@
 <head>
 	<meta charset="UTF-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
-	<title>ANGLER SCOUT</title>
+	<title>ANGLER SCOUT | Tactical AI</title>
+	<link rel="preconnect" href="https://fonts.googleapis.com">
+	<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+	<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
 	<style>
 		:root {
-			--bg-main: #0e0e0e;
-			--bg-panel: #171717;
-			--accent: #61ff9f;
-			--text-primary: #ffffff;
-			--text-body: #c4c7c5;
+			--bg: #0e0e0e;
+			--panel: #171717;
+			--accent: #1977dd;
+			--text-main: #e8eaed;
+			--text-dim: #c4c7c5;
 			--border: #2b2b2b;
+			--max-width: 800px;
 		}
 
 		body {
-			background: var(--bg-main);
-			color: var(--text-body);
+			background-color: var(--bg);
+			color: var(--text-dim);
 			font-family: 'Inter', sans-serif;
 			margin: 0;
 			display: flex;
@@ -26,43 +30,45 @@
 			overflow: hidden;
 		}
 
+		/* Transitioning Header */
 		header {
-			padding: 80px 20px;
-			flex-shrink: 0;
+			padding: 120px 20px 40px;
 			display: flex;
 			flex-direction: column;
 			align-items: center;
-			transition: 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+			transition: all 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+			flex-shrink: 0;
 		}
 
 		header.active {
-			padding: 15px 20px;
+			padding: 20px;
 			order: 2;
-			border-top: 1px solid var(--border);
+			/* Moves to bottom */
 			background: #0a0a0a;
+			border-top: 1px solid var(--border);
 		}
 
 		.search-container {
 			width: 100%;
-			max-width: 800px;
+			max-width: var(--max-width);
 			position: relative;
 		}
 
 		input {
 			width: 100%;
-			padding: 18px 120px 18px 25px;
-			background: var(--bg-panel);
+			padding: 18px 130px 18px 25px;
+			background: var(--panel);
 			border: 1px solid var(--border);
 			border-radius: 32px;
 			color: #fff;
+			font-size: 1rem;
 			outline: none;
 			box-sizing: border-box;
-			font-size: 1rem;
+			transition: border-color 0.2s;
 		}
 
 		input:focus {
 			border-color: var(--accent);
-			box-shadow: 0 0 15px rgba(97, 255, 159, 0.15);
 		}
 
 		button {
@@ -71,41 +77,40 @@
 			top: 50%;
 			transform: translateY(-50%);
 			background: var(--accent);
+			color: #000;
 			border: none;
-			padding: 10px 22px;
+			padding: 10px 24px;
 			border-radius: 24px;
 			font-weight: 600;
 			cursor: pointer;
+			transition: opacity 0.2s;
 		}
 
-		main {
-			flex: 1;
-			overflow-y: auto;
-			padding: 20px;
-			display: flex;
-			flex-direction: column;
-			align-items: center;
-			order: 1;
+		button:hover {
+			opacity: 0.9;
 		}
 
+		/* Chips / Suggestive UI */
 		#chips {
 			display: none;
-			gap: 8px;
-			margin-bottom: 12px;
+			gap: 10px;
+			margin-bottom: 15px;
 			flex-wrap: wrap;
 			justify-content: center;
 			width: 100%;
-			max-width: 800px;
+			max-width: var(--max-width);
 		}
 
 		.chip {
-			background: var(--bg-panel);
+			background: var(--panel);
 			border: 1px solid var(--border);
-			padding: 7px 15px;
+			padding: 8px 18px;
 			border-radius: 20px;
-			font-size: 0.8rem;
+			font-size: 0.85rem;
+			color: var(--text-main);
 			cursor: pointer;
 			transition: 0.2s;
+			white-space: nowrap;
 		}
 
 		.chip:hover {
@@ -113,23 +118,41 @@
 			color: var(--accent);
 		}
 
+		/* Results Area */
+		main {
+			flex: 1;
+			overflow-y: auto;
+			padding: 40px 20px;
+			display: flex;
+			flex-direction: column;
+			align-items: center;
+			order: 1;
+			/* Result appears above header when active */
+		}
+
 		.report-card {
 			width: 100%;
-			max-width: 800px;
-			background: var(--bg-panel);
-			border-radius: 28px;
-			padding: 45px;
-			box-sizing: border-box;
-			margin-bottom: 25px;
-			line-height: 1.8;
+			max-width: var(--max-width);
+			background: var(--panel);
 			border: 1px solid var(--border);
-			animation: slideUp 0.5s ease;
+			border-radius: 24px;
+			padding: 35px;
+			margin-bottom: 25px;
+			line-height: 1.7;
+			color: var(--text-main);
+			animation: fadeIn 0.4s ease-out;
 		}
 
 		h2 {
-			color: var(--text-primary);
-			margin: 0 0 25px 0;
-			font-weight: 500;
+			color: var(--accent);
+			margin-top: 0;
+			font-size: 1.4rem;
+		}
+
+		h3 {
+			color: var(--text-main);
+			margin-top: 20px;
+			font-size: 1.1rem;
 		}
 
 		b {
@@ -137,10 +160,10 @@
 			font-weight: 500;
 		}
 
-		@keyframes slideUp {
+		@keyframes fadeIn {
 			from {
 				opacity: 0;
-				transform: translateY(20px);
+				transform: translateY(10px);
 			}
 
 			to {
@@ -148,71 +171,124 @@
 				transform: translateY(0);
 			}
 		}
+
+		/* Custom Scrollbar */
+		main::-webkit-scrollbar {
+			width: 6px;
+		}
+
+		main::-webkit-scrollbar-thumb {
+			background: var(--border);
+			border-radius: 10px;
+		}
 	</style>
 </head>
 
 <body>
-	<main id="out"></main>
+
+	<main id="output-area"></main>
+
 	<header id="app-header">
 		<div id="chips">
-			<div class="chip" onclick="q('Best lures for this spot?')">Recommended Lures</div>
-			<div class="chip" onclick="q('What time of day is best?')">Optimal Timing</div>
-			<div class="chip" onclick="q('Any nearby access points?')">Access Points</div>
+			<div class="chip" onclick="quickQuery('Analyze the best lures for these species')">Targeted Lure Specs</div>
+			<div class="chip" onclick="quickQuery('What specific gear and line weight should I bring?')">Gear & Tackle
+				Brief</div>
+			<div class="chip" onclick="quickQuery('Break down the optimal timing and weather windows')">Timing &
+				Conditions</div>
 		</div>
 		<div class="search-container">
 			<form id="scout-form">
-				<input type="text" id="user-query" placeholder="Enter location for tactical scout..." required
+				<input type="text" id="user-query" placeholder="Enter a location to scout..." required
 					autocomplete="off">
-				<button type="submit" id="scout-btn">Scout</button>
+				<button type="submit">Scout</button>
 			</form>
 		</div>
 	</header>
 
 	<script>
-		const out = document.getElementById('out');
-		const header = document.getElementById('app-header');
-		const chips = document.getElementById('chips');
-		let history = [];
+		const scoutForm = document.getElementById('scout-form');
+		const queryInput = document.getElementById('user-query');
+		const outputArea = document.getElementById('output-area');
+		const appHeader = document.getElementById('app-header');
+		const chipContainer = document.getElementById('chips');
 
-		function q(text) { document.getElementById('user-query').value = text; document.getElementById('scout-form').requestSubmit(); }
+		let chatHistory = [];
 
-		document.getElementById('scout-form').onsubmit = async (e) => {
+		function quickQuery(text) {
+			queryInput.value = text;
+			scoutForm.requestSubmit();
+		}
+
+		scoutForm.onsubmit = async (e) => {
 			e.preventDefault();
-			const input = document.getElementById('user-query');
-			const query = input.value.trim();
+			const query = queryInput.value.trim();
 			if (!query) return;
 
-			header.classList.add('active');
-			chips.style.display = 'flex';
-			history.push({ role: "user", content: query });
+			// UI State Change
+			appHeader.classList.add('active');
+			chipContainer.style.display = 'flex';
 
-			// Update Geographic Anchor if the query isn't a question
-			if (!query.includes('?')) fetch(`/api/anchor?loc=${encodeURIComponent(query)}`);
+			// Add to history
+			chatHistory.push({ role: "user", content: query });
 
-			const res = await fetch('/api/chat', { method: 'POST', body: JSON.stringify({ messages: history }) });
-			const reader = res.body.getReader();
-			const decoder = new TextDecoder();
+			// Update Geographic Anchor via DO if it's a new location search
+			if (!query.includes('?') && query.length < 50) {
+				fetch(`/api/anchor?loc=${encodeURIComponent(query)}`).catch(console.error);
+			}
+
+			// Create new result card
 			const card = document.createElement('div');
 			card.className = 'report-card';
-			out.appendChild(card);
+			card.innerHTML = '<i>Scouting intelligence...</i>';
+			outputArea.appendChild(card);
 			card.scrollIntoView({ behavior: 'smooth' });
 
-			let fullText = "";
-			while (true) {
-				const { done, value } = await reader.read();
-				if (done) break;
-				const chunk = decoder.decode(value);
-				const lines = chunk.split('\n');
-				for (const line of lines) {
-					if (line.startsWith('data: ') && !line.includes('[DONE]')) {
-						const data = JSON.parse(line.slice(6));
-						fullText += data.response;
-						card.innerHTML = fullText.replace(/^## (.*$)/gm, '<h2>$1</h2>').replace(/\*\*(.*?)\*\*/g, '<b>$1</b>').replace(/\n/g, '<br>');
+			try {
+				const response = await fetch('/api/chat', {
+					method: 'POST',
+					body: JSON.stringify({ messages: chatHistory })
+				});
+
+				const reader = response.body.getReader();
+				const decoder = new TextDecoder();
+				let fullText = "";
+
+				while (true) {
+					const { done, value } = await reader.read();
+					if (done) break;
+
+					const chunk = decoder.decode(value);
+					const lines = chunk.split('\n');
+
+					for (const line of lines) {
+						if (line.startsWith('data: ') && !line.includes('[DONE]')) {
+							try {
+								const json = JSON.parse(line.slice(6));
+								// IMPORTANT: Check for data.response existence to prevent "undefined"
+								if (json.response) {
+									fullText += json.response;
+
+									// Basic Markdown-ish rendering
+									card.innerHTML = fullText
+										.replace(/^## (.*$)/gm, '<h2>$1</h2>')
+										.replace(/^### (.*$)/gm, '<h3>$1</h3>')
+										.replace(/\*\*(.*?)\*\*/g, '<b>$1</b>')
+										.replace(/\n/g, '<br>');
+								}
+							} catch (parseError) {
+								// Skip partial/broken JSON chunks
+							}
+						}
 					}
 				}
+
+				chatHistory.push({ role: "assistant", content: fullText });
+				queryInput.value = ""; // Clear input for follow-up
+
+			} catch (error) {
+				card.innerHTML = '<b style="color: #ff6161;">Error:</b> Intelligence link severed. Check terminal.';
+				console.error(error);
 			}
-			history.push({ role: "assistant", content: fullText });
-			input.value = '';
 		};
 	</script>
 </body>
