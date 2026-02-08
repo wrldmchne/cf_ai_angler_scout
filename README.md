@@ -7,7 +7,7 @@ Angler Scout is a specialized AI agent designed for curious anglers looking to e
 - **Intelligence:** [Workers AI](https://developers.cloudflare.com/ai/) (Running `llama-3.3-70b-instruct-fp8-fast`)
 - **Persistence:** [Durable Objects](https://developers.cloudflare.com/durable-objects/) (The 'Geographic Anchor' for session state)
 - **Orchestration:** [Workflows](https://developers.cloudflare.com/workflows/) (Asynchronous mission logging and data enrichment)
-- **Frontend:** [Cloudflare Assets](https://developers.cloudflare.com/workers/frameworks/) (Vanilla JS / CSS variables for 'Nautical Blue' branding)
+- **Frontend:** [Cloudflare Assets](https://developers.cloudflare.com/workers/frameworks/) (Vanilla JS / CSS variables)
 
 ## Key Architectural Patterns
 
