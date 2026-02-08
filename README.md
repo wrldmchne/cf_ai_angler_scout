@@ -47,6 +47,12 @@ Building a real-time AI agent at the Edge revealed several nuanced challenges wi
 * **Problem:** Follow-up questions would occasionally lose context of the location if the browser sent the chat request before the Durable Object write finished.
 * **The Fix:** Optimized the Worker to treat the Durable Object as the immutable Source of Truth for the session, ensuring the prompt context is injected server-side before the AI inference begins.
 
+## 5. Future Roadmap
+The next evolution of Angler Scout will incorporate a ledger of curated hyper-local data to supplement the LLM's generalized knowledge. This "living document" approach allows the database to grow alongside the community, providing niche intel and "hidden gem" locations that general AI models often overlook:
+
+- **Internal Knowledge Base (Vectorize):** I plan to implement a proprietary "Angler's Ledger" using **Cloudflare Vectorize**. This allows developers and verified contributors to update a centralized ledger (Excel/JSON) with hyper-local intel—such as secret creek access points and seasonally specific lure patterns—without needing to redeploy the core application.
+- **Real-time Weather Integration:** Connecting the Geographic Anchor to a weather API to overlay barometric pressure trends on the tactical briefing.
+
 ---
 
 ## Deployment

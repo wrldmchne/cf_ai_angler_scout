@@ -2,7 +2,7 @@
 	"$schema": "node_modules/wrangler/config-schema.json",
 	"name": "cf-ai-fishing-guru",
 	"main": "src/index.ts",
-	"compatibility_date": "2026-02-05",
+	"compatibility_date": "2026-02-08",
 	"compatibility_flags": [
 		"nodejs_compat"
 	],
@@ -10,12 +10,15 @@
 		"directory": "./public",
 		"binding": "ASSETS"
 	},
-	"observability": {
-		"enabled": true
-	},
 	"ai": {
 		"binding": "AI"
 	},
+	"vectorize": [
+		{
+			"binding": "VECTOR_INDEX",
+			"index_name": "angler-ledger"
+		}
+	],
 	"workflows": [
 		{
 			"name": "fishing-workflow",
@@ -38,5 +41,8 @@
 				"FishingMemory"
 			]
 		}
-	]
+	],
+	"observability": {
+		"enabled": true
+	}
 }
